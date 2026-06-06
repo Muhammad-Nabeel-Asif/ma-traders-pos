@@ -1,0 +1,122 @@
+name: Build & Release Installers
+
+# Builds the MA Traders Windows .exe AND Ubuntu AppImage and publishes both
+# into the same "latest" GitHub Release.
+# Triggers:
+#   - Automatically on every push to main (new code => new version => new builds)
+#   - Manually from the GitHub "Actions" tab (Run workflow)
+#
+# Permanent download links (always serve the newest build):
+#   Windows: https://github.com/<owner>/<repo>/releases/latest/download/MA-Traders-Setup.exe
+#   Ubuntu:  https://github.com/<owner>/<repo>/releases/latest/download/MA-Traders.AppImage
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# allow the workflow to create tags and releases
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Derive version from build number
+        shell: bash
+        run: |
+          VERSION="0.1.${{ github.run_number }}"
+          echo "APP_VERSION=$VERSION" >> "$GITHUB_ENV"
+          npm version "$VERSION" --no-git-tag-version --allow-same-version
+          echo "Building version $VERSION"
+
+      - name: Install root dependencies
+        run: npm install
+
+      - name: Install frontend dependencies
+        run: npm install --prefix frontend
+
+      - name: Build Windows installer
+        run: npm run dist:win
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload installer as build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MA-Traders-Windows-Installer
+          path: release/*.exe
+          if-no-files-found: error
+
+      - name: Publish "latest" GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.APP_VERSION }}
+          name: MA Traders v${{ env.APP_VERSION }}
+          make_latest: true
+          files: |
+            release/*.exe
+            release/*.exe.blockmap
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-linux:
+    # Runs after the Windows job so it appends its AppImage to the SAME release
+    needs: build-windows
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Derive version from build number
+        shell: bash
+        run: |
+          VERSION="0.1.${{ github.run_number }}"
+          echo "APP_VERSION=$VERSION" >> "$GITHUB_ENV"
+          npm version "$VERSION" --no-git-tag-version --allow-same-version
+          echo "Building version $VERSION"
+
+      - name: Install root dependencies
+        run: npm install
+
+      - name: Install frontend dependencies
+        run: npm install --prefix frontend
+
+      - name: Build Linux AppImage + deb
+        run: npm run dist:linux
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload AppImage as build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MA-Traders-Linux-AppImage
+          path: release/*.AppImage
+          if-no-files-found: error
+
+      - name: Attach Ubuntu builds to the same release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.APP_VERSION }}
+          name: MA Traders v${{ env.APP_VERSION }}
+          make_latest: true
+          files: |
+            release/*.AppImage
+            release/*.deb
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

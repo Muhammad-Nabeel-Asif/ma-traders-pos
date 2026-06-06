@@ -68,6 +68,37 @@ Useful scripts:
 - `npm run db:migrate` - apply migrations
 - `npm run db:seed` - apply migrations + insert sample data (idempotent)
 
+## Day-to-day workflow (after making code changes)
+
+Use this checklist whenever you edit the code.
+
+1. Run/test the change in the browser (fast loop):
+   ```bash
+   npm run rebuild:node   # only if you previously built an installer on this machine
+   npm run dev            # open http://localhost:5173  (admin / admin123)
+   ```
+   If you changed the database schema (`backend/src/db/schema.ts`):
+   ```bash
+   npm run db:generate    # create a new migration
+   npm run db:migrate     # apply it to your local DB
+   ```
+
+2. Build a fresh Ubuntu AppImage of the latest code (optional, local):
+   ```bash
+   npm run dist:linux     # produces release/MA-Traders.AppImage (+ .deb)
+   npm run rebuild:node   # switch the native module back so `npm run dev` works again
+   ```
+
+3. Ship the update to everyone (recommended - cloud builds both installers):
+   ```bash
+   git add -A
+   git commit -m "describe your change"
+   git push
+   ```
+   GitHub Actions then builds the Windows `.exe` and Ubuntu `.AppImage` for the
+   new version and publishes them to the "latest" Release. Download from the
+   permanent links in "Build installers in the cloud" below.
+
 ## Running / building the desktop app
 
 The desktop app bundles the API and database inside an Electron window.
@@ -95,11 +126,11 @@ npm run dist:linux     # produces release/*.AppImage and release/*.deb
 
 Then either:
 
-- Double-click `release/MA Traders-0.1.0.AppImage` (first: right-click > Properties >
-  Permissions > Allow executing, or `chmod +x "release/MA Traders-0.1.0.AppImage"`).
+- Double-click `release/MA-Traders.AppImage` (first: right-click > Properties >
+  Permissions > Allow executing, or `chmod +x release/MA-Traders.AppImage`).
   If your Ubuntu lacks FUSE, run it with `--appimage-extract-and-run`.
 - Or install the .deb so it appears in your app menu:
-  `sudo apt install ./release/ma-traders_0.1.0_amd64.deb`
+  `sudo apt install ./release/MA-Traders.deb`
 
 > If you switch back to web dev after a packaging build and see a
 > `NODE_MODULE_VERSION` error, run `npm run rebuild:node` once.
@@ -120,24 +151,26 @@ npm run dist:win
 
 This produces `release/MA Traders Setup <version>.exe`.
 
-### Build the Windows installer in the cloud (no Windows PC needed)
+### Build installers in the cloud (no Windows/build PC needed)
 
-A GitHub Actions workflow at `.github/workflows/build-windows.yml` builds the
-Windows installer on GitHub's Windows runners automatically.
+A GitHub Actions workflow at `.github/workflows/build-installers.yml` builds
+BOTH the Windows `.exe` and the Ubuntu `.AppImage` (plus `.deb`) automatically
+and publishes them to the same "latest" GitHub Release.
 
 - Every push to `main` builds a new version (`0.1.<build-number>`) and publishes
-  it as the repository's "latest" GitHub Release.
+  all installers as the repository's "latest" Release.
 - You can also trigger it manually from the repo's Actions tab.
 
-Permanent download link (always serves the newest installer - share this with
-the end user):
+Permanent download links (always serve the newest build):
 
 ```
-https://github.com/<owner>/<repo>/releases/latest/download/MA-Traders-Setup.exe
+Windows: https://github.com/Muhammad-Nabeel-Asif/ma-traders-pos/releases/latest/download/MA-Traders-Setup.exe
+Ubuntu:  https://github.com/Muhammad-Nabeel-Asif/ma-traders-pos/releases/latest/download/MA-Traders.AppImage
 ```
 
-To ship an update: commit and push to `main`. A few minutes later the link above
-serves the new `.exe`; the user re-runs the installer to update.
+To ship an update: commit and push to `main`. A few minutes later the links above
+serve the new builds. Windows users re-run the installer; on Ubuntu you download
+the new AppImage and run it.
 
 ### How the end user installs it (non-technical)
 

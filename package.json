@@ -45,7 +45,8 @@
         "deb"
       ],
       "category": "Office",
-      "maintainer": "MA Traders <support@matraders.local>"
+      "maintainer": "MA Traders <support@matraders.local>",
+      "artifactName": "MA-Traders.${ext}"
     },
     "win": {
       "target": [
