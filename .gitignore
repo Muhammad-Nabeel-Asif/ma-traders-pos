@@ -1,0 +1,27 @@
+node_modules/
+dist/
+release/
+frontend/dist/
+*.local
+
+# SQLite database files (local data)
+*.sqlite
+*.sqlite3
+*.db
+data/
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+.cursor/

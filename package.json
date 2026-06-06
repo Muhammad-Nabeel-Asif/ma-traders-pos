@@ -1,0 +1,96 @@
+{
+  "name": "ma-traders",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MA Traders - Distribution / POS desktop application",
+  "homepage": "https://matraders.local",
+  "author": {
+    "name": "MA Traders",
+    "email": "support@matraders.local"
+  },
+  "main": "dist/electron/main.js",
+  "scripts": {
+    "dev": "concurrently -n api,web -c blue,green \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:api": "cross-env NODE_ENV=development tsx watch backend/src/index.ts",
+    "dev:web": "npm --prefix frontend run dev",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx backend/src/db/migrate.ts",
+    "db:seed": "tsx backend/src/db/seed.ts",
+    "build:web": "npm --prefix frontend run build",
+    "build:server": "tsc -p tsconfig.build.json",
+    "build": "npm run build:web && npm run build:server",
+    "rebuild:electron": "electron-builder install-app-deps",
+    "rebuild:node": "npm rebuild better-sqlite3",
+    "electron:dev": "npm run build && cross-env NODE_ENV=development electron .",
+    "dist": "npm run build && electron-builder",
+    "dist:win": "npm run build && electron-builder --win",
+    "dist:linux": "npm run build && electron-builder --linux",
+    "start": "cross-env NODE_ENV=production electron ."
+  },
+  "build": {
+    "appId": "com.matraders.pos",
+    "productName": "MA Traders",
+    "directories": {
+      "output": "release"
+    },
+    "asar": false,
+    "files": [
+      "dist/**/*",
+      "frontend/dist/**/*",
+      "backend/drizzle/**/*"
+    ],
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Office",
+      "maintainer": "MA Traders <support@matraders.local>"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "MA Traders",
+      "artifactName": "MA-Traders-Setup.${ext}"
+    }
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^12.10.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "drizzle-orm": "^0.45.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^25.9.2",
+    "concurrently": "^10.0.3",
+    "cross-env": "^10.1.0",
+    "drizzle-kit": "^0.31.10",
+    "electron": "^41.7.1",
+    "electron-builder": "^26.15.0",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3",
+    "wait-on": "^9.0.10"
+  }
+}
