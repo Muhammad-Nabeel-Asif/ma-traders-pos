@@ -13,6 +13,7 @@
   },
   "main": "dist/electron/main.js",
   "scripts": {
+    "postinstall": "npm install --prefix frontend",
     "dev": "concurrently -n api,web -c blue,green \"npm run dev:api\" \"npm run dev:web\"",
     "dev:api": "cross-env NODE_ENV=development tsx watch backend/src/index.ts",
     "dev:web": "npm --prefix frontend run dev",

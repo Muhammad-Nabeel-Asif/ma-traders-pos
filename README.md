@@ -25,7 +25,7 @@ claims & claim destroy, journal vouchers, weekly reports, full User Rights UI.
 - Frontend: React + Vite + TypeScript + Ant Design
 - Backend: Node.js + Express + TypeScript
 - Database: SQLite via better-sqlite3 + Drizzle ORM (single file)
-- Desktop: Electron + electron-builder (Windows NSIS installer)
+- Desktop: Electron + electron-builder (Windows NSIS installer, Ubuntu AppImage/deb)
 
 Money is stored as integer paisa (1 PKR = 100 paisa) to avoid floating point
 errors and formatted as PKR in the UI.
@@ -52,7 +52,7 @@ data/           local SQLite database during development (generated)
 ## Development (web, fastest iteration)
 
 ```bash
-npm install
+npm install          # installs root AND frontend deps (via postinstall)
 npm run db:seed      # create the SQLite DB + sample data + admin user
 npm run dev          # starts API (http://localhost:4317) and web (http://localhost:5173)
 ```
@@ -149,7 +149,7 @@ npm install
 npm run dist:win
 ```
 
-This produces `release/MA Traders Setup <version>.exe`.
+This produces `release/MA-Traders-Setup.exe`.
 
 ### Build installers in the cloud (no Windows/build PC needed)
 
@@ -174,7 +174,7 @@ the new AppImage and run it.
 
 ### How the end user installs it (non-technical)
 
-1. Give them `MA Traders Setup x.y.z.exe` (USB or download).
+1. Give them `MA-Traders-Setup.exe` (USB or download link).
 2. They double-click it -> it installs and creates a desktop + Start-menu icon.
 3. They click the icon -> the app opens in its own window. The API and database
    run silently inside. No terminal, no browser, fully offline.
@@ -187,8 +187,9 @@ The same configuration also builds a Linux package via `npm run dist:linux`
 
 ## Default credentials
 
-`admin` / `admin123` - change this after first login (user management UI is
-planned for Phase 3; for now the password hash lives in the `users` table).
+`admin` / `admin123`. A user-management / password-change screen is planned for
+Phase 3; until then, credentials live (hashed) in the `users` table and can be
+changed via the database / seed.
 
 ## Notes
 
