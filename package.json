@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "description": "MA Traders - Distribution / POS desktop application",
+  "engines": {
+    "node": ">=20"
+  },
   "homepage": "https://matraders.local",
   "author": {
     "name": "MA Traders",

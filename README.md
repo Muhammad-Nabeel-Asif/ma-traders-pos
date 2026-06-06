@@ -47,7 +47,7 @@ data/           local SQLite database during development (generated)
 
 ## Prerequisites
 
-- Node.js 20+ and npm
+- Node.js 24 LTS (recommended; Node 20+ also works) and npm
 
 ## Development (web, fastest iteration)
 
